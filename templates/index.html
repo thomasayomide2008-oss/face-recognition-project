@@ -1,0 +1,41 @@
+<!-- templates/index.html -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Emotion Recognition</title>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>Facial Emotion Recognition</h1>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept="image/*" required>
+        <button type="submit">Detect Emotion</button>
+      </form>
+      <div id="result"></div>
+    </div>
+
+    <script>
+      const form = document.getElementById('uploadForm')
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const fileInput = document.getElementById('fileInput')
+        const file = fileInput.files[0]
+        if (!file) return
+        const fd = new FormData()
+        fd.append('file', file)
+
+        const res = await fetch('/predict', { method:'POST', body: fd })
+        const data = await res.json()
+        const result = document.getElementById('result')
+        if (data.error) {
+          result.innerText = 'Error: ' + data.error
+        } else {
+          result.innerHTML = `<p>Emotion: <strong>${data.emotion}</strong> (confidence ${ (data.confidence*100).toFixed(1) }%)</p>`
+        }
+      })
+    </script>
+  </body>
+</html>
